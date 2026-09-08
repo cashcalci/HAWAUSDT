@@ -7,8 +7,8 @@
 <style>
 :root{--card:#fff;--text:#172033;--muted:#64748b;--border:#dbe3ee;--accent:#2563eb;--soft:#eff6ff;--success:#15803d;--success-soft:#f0fdf4;--orange:#c2410c;--orange-soft:#fff7ed;--shadow:0 18px 50px rgba(15,23,42,.10)}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:35px 16px;font-family:Inter,Arial,sans-serif;background:linear-gradient(135deg,#eef3f9,#f8fafc);color:var(--text)}
-.container{width:100%;max-width:680px;margin:auto;background:var(--card);border:1px solid rgba(219,227,238,.8);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
-.header{padding:28px 30px 24px;background:linear-gradient(135deg,#172554,#1e40af);color:white}.header h1{margin:0;font-size:27px;letter-spacing:-.4px}.header p{margin:7px 0 0;font-size:13px;opacity:.82}
+.container{width:100%;max-width:700px;margin:auto;background:var(--card);border:1px solid rgba(219,227,238,.8);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.header{padding:28px 30px 24px;background:linear-gradient(135deg,#172554,#1e40af);color:#fff}.header h1{margin:0;font-size:27px;letter-spacing:-.4px}.header p{margin:7px 0 0;font-size:13px;opacity:.82}
 .content{padding:28px 30px 30px}.field{margin-bottom:20px}label{display:block;margin-bottom:8px;font-size:13px;font-weight:800;letter-spacing:.2px;color:#334155}
 input,select{width:100%;height:50px;padding:0 15px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);font-size:17px;font-weight:600;outline:none}
 input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,99,235,.10)}
@@ -23,9 +23,16 @@ input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:fo
 .profit-usdt-row{background:#ecfdf5;border-left:4px solid #059669}.profit-usdt-row .result-label,.profit-usdt-row .result-value{color:#047857}
 .extra-row{background:var(--orange-soft);border-left:4px solid #f97316}.extra-row .result-label,.extra-row .result-value{color:var(--orange)}
 .share-controls{padding:18px;background:#f8fafc;border-bottom:1px solid #edf1f6}
-.share-controls label{font-size:12px;font-weight:900;letter-spacing:.3px;color:#475569}
 .share-person-field{display:none;margin-top:14px}.individual-profit-row{display:none;background:#ecfdf5;border-left:4px solid #059669}
 .individual-profit-row .result-label,.individual-profit-row .result-value{color:#047857}
+.dollar-results{display:none;border-top:1px solid #dbe3ee;text-align:left}
+.dollar-title{padding:16px 18px;background:#f0f7ff;color:#1d4ed8;font-size:14px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;text-align:left}
+.dollar-row{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:68px;padding:15px 18px;background:#f8fbff;border-bottom:1px solid #e5edf7;border-left:4px solid #3b82f6}
+.dollar-row .result-label,.dollar-row .result-value{color:#1e40af}
+.dollar-profit-row{background:#ecfdf5;border-left:4px solid #059669}
+.dollar-profit-row .result-label,.dollar-profit-row .result-value{color:#047857}
+.dollar-final{background:#eefbf3;border-left:4px solid #16a34a}
+.dollar-final .result-label,.dollar-final .result-value{color:#15803d}
 .footer-note{margin-top:15px;text-align:center;color:var(--muted);font-size:11px;line-height:1.6}
 @media(max-width:520px){body{padding:15px 10px}.header,.content{padding-left:20px;padding-right:20px}.header h1{font-size:23px}.result-label{font-size:13px}.result-value{font-size:17px}}
 </style>
@@ -38,12 +45,13 @@ input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:fo
 <div class="field"><label for="buyPrice">ENTER MY USDT BUY PRICE</label><input type="number" id="buyPrice" step="0.0001" placeholder="Example: 3.67 AED"></div>
 <div class="field"><label for="hawalaRate">ENTER INDIAN / AED RATE FROM HAWALA</label><input type="number" id="hawalaRate" step="0.0001" placeholder="Example: 25.75 Rs"></div>
 <div class="field highlight"><label for="inrRequired">ENTER USDT REQUIRED TO CLIENT IN RUPEES</label><input type="number" id="inrRequired" value="100000" step="0.01" placeholder="Example: 100000"></div>
+<div class="field"><label for="dollarRequired">ENTER USDT REQUIRED TO CLIENT IN (DOLLARS)</label><input type="number" id="dollarRequired" step="0.01" placeholder="Example: 5000 USD"></div>
 <div class="field"><label for="clientUsdtRate">ENTER USDT RATE TO CLIENT</label><input type="number" id="clientUsdtRate" step="0.0001" placeholder="Example: 3.70 AED"></div>
 <div class="field"><label for="indiaSellPrice">USDT SELL PRICE IN INDIA</label><input type="number" id="indiaSellPrice" step="0.0001" placeholder="Example: 96.50 INR"></div>
 <div class="field"><label for="platformFee">ENTER PLATFORM FEE IN BUYING USDT (IN $)</label><input type="number" id="platformFee" step="0.01" placeholder="Example: 5.00 USDT"></div>
 
 <div class="results">
-<div class="results-title">Calculation Results</div>
+<div class="results-title"><center>Calculation Results</center></div>
 <div class="result landing"><span class="result-label">LANDING COST OF USDT</span><span class="result-value" id="landingCost">—</span></div>
 <div class="result"><span class="result-label">AED TO RECEIVE IN DXB</span><span class="result-value" id="aedReceive">—</span></div>
 <div class="result"><span class="result-label">TOTAL OF WHOLESALE BUY USDT (AFTER PLATFORM FEE)</span><span class="result-value" id="wholesaleBuy">—</span></div>
@@ -66,6 +74,16 @@ input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:fo
 <div class="result individual-profit-row" id="individualProfitRow"><span class="result-label">INDIVIDUAL PROFIT</span><span class="result-value" id="individualProfit">—</span></div>
 <div class="result profit-row"><span class="result-label" id="directProfitLabel">PROFIT IN USDT IF DIRECT SELL</span><span class="result-value" id="finalDifference">—</span></div>
 <div class="result extra-row"><span class="result-label">EXTRA INR PER USDT</span><span class="result-value" id="extraInrPerUsdt">—</span></div>
+
+<div class="dollar-results" id="dollarResults">
+<div class="dollar-title"><center>Dollar Client Calculation</center></div>
+<div class="result dollar-row"><span class="result-label">AED CASH AT MY USDT RATE</span><span class="result-value" id="aedCashMyRate">—</span></div>
+<div class="result dollar-row"><span class="result-label">ACTUAL AED CASH HAS TO BE RECEIVED IN UAE</span><span class="result-value" id="aedCashClientSend">—</span></div>
+<div class="result dollar-row"><span class="result-label">FINAL INR AMOUNT CLIENT HAS TO SEND</span><span class="result-value" id="finalInrToSend">—</span></div>
+<div class="result dollar-profit-row"><span class="result-label">PROFIT IN AED</span><span class="result-value" id="dollarProfitAed">—</span></div>
+<div class="result dollar-row"><span class="result-label">PLATFORM FEE IN AED</span><span class="result-value" id="platformFeeAed">—</span></div>
+<div class="result dollar-final"><span class="result-label">TOTAL PROFIT</span><span class="result-value" id="totalProfit">—</span></div>
+</div>
 </div>
 
 <div class="footer-note">
@@ -77,9 +95,16 @@ Client Receiving USDT (After Our Sell Rate) = INR Required ÷ USDT Sell Price in
 Profit to Share (If Sharing) = Total USDT Attained − Client Receiving USDT (After Our Sell Rate)<br>
 Individual Profit = Profit to Share (If Sharing) ÷ Number of Persons<br>
 Profit in USDT If Direct Sell / Side Hustle Income = Total Wholesale Buy USDT − Total USDT Attained<br>
-Extra INR per USDT = (USDT Rate to Client − My USDT Buy Price) × Indian/AED Hawala Rate
+Dollar calculation is displayed only when Enter USDT Required to Client in (Dollars) is entered.<br>
+AED Cash at My USDT Rate = Dollar USDT Required × My USDT Buy Price<br>
+Actual AED Cash Has To Be Received In UAE = Dollar USDT Required × Client USDT Rate<br>
+Final INR Amount Client Has To Send = Actual AED Cash Has To Be Received In UAE × Indian/AED Rate from Hawala<br>
+Profit in AED = Actual AED Cash Has To Be Received In UAE − AED Cash at My USDT Rate<br>
+Platform Fee in AED = Platform Fee in USDT × My USDT Buy Price<br>
+Total Profit = Profit in AED − Platform Fee in AED
 </div>
-</div></div>
+</div>
+</div>
 
 <script>
 function getNumber(id){const v=parseFloat(document.getElementById(id).value);return Number.isFinite(v)?v:null}
@@ -90,25 +115,27 @@ function calculate(){
 const buyPrice=getNumber('buyPrice');
 const hawalaRate=getNumber('hawalaRate');
 const inrRequired=getNumber('inrRequired');
+const dollarRequired=getNumber('dollarRequired');
 const clientUsdtRate=getNumber('clientUsdtRate');
 const indiaSellPrice=getNumber('indiaSellPrice');
 const platformFee=getNumber('platformFee');
 const hasIndiaSellPrice=indiaSellPrice!==null;
+const hasDollarRequired=dollarRequired!==null;
 
-document.getElementById('usdtSendLabel').textContent=
-hasIndiaSellPrice?'TOTAL USDT ATTAINED':'USDT TO SEND CLIENT (IF DIRECT)$';
-
-document.getElementById('directProfitLabel').textContent=
-hasIndiaSellPrice?'SIDE HUSTLE INCOME':'PROFIT IN USDT IF DIRECT SELL';
+document.getElementById('usdtSendLabel').textContent=hasIndiaSellPrice?'TOTAL USDT ATTAINED':'USDT TO SEND CLIENT (IF DIRECT)$';
+document.getElementById('directProfitLabel').textContent=hasIndiaSellPrice?'SIDE HUSTLE INCOME':'PROFIT IN USDT IF DIRECT SELL';
 
 let landingCost=null,aedReceive=null,wholesaleBuy=null,usdtSend=null,clientReceivingUsdt=null,profitUsdt=null,finalDifference=null,extraInrPerUsdt=null,individualProfit=null;
+let aedCashMyRate=null,aedCashClientSend=null,finalInrToSend=null,dollarProfitAed=null,platformFeeAed=null,totalProfit=null;
 
 if(clientUsdtRate!==null&&hawalaRate!==null) landingCost=clientUsdtRate*hawalaRate;
 if(inrRequired!==null&&hawalaRate!==null&&hawalaRate!==0) aedReceive=inrRequired/hawalaRate;
+
 if(aedReceive!==null&&buyPrice!==null&&buyPrice!==0){
 const grossWholesaleBuy=aedReceive/buyPrice;
 wholesaleBuy=grossWholesaleBuy-(platformFee!==null?platformFee:0);
 }
+
 if(aedReceive!==null&&clientUsdtRate!==null&&clientUsdtRate!==0) usdtSend=aedReceive/clientUsdtRate;
 if(inrRequired!==null&&indiaSellPrice!==null&&indiaSellPrice!==0) clientReceivingUsdt=inrRequired/indiaSellPrice;
 if(usdtSend!==null&&clientReceivingUsdt!==null) profitUsdt=usdtSend-clientReceivingUsdt;
@@ -117,12 +144,20 @@ if(clientUsdtRate!==null&&buyPrice!==null&&hawalaRate!==null) extraInrPerUsdt=(c
 
 const profitShareMode=document.getElementById('profitShareMode').value;
 const numberOfPersons=getNumber('numberOfPersons');
-
-if(profitShareMode==='individual'&&profitUsdt!==null&&numberOfPersons!==null&&numberOfPersons>0)
-individualProfit=profitUsdt/numberOfPersons;
-
+if(profitShareMode==='individual'&&profitUsdt!==null&&numberOfPersons!==null&&numberOfPersons>0) individualProfit=profitUsdt/numberOfPersons;
 document.getElementById('sharePersonField').style.display=profitShareMode==='individual'?'block':'none';
 document.getElementById('individualProfitRow').style.display=profitShareMode==='individual'?'flex':'none';
+
+if(hasDollarRequired){
+if(buyPrice!==null) aedCashMyRate=dollarRequired*buyPrice;
+if(clientUsdtRate!==null) aedCashClientSend=dollarRequired*clientUsdtRate;
+if(aedCashClientSend!==null&&hawalaRate!==null) finalInrToSend=aedCashClientSend*hawalaRate;
+if(aedCashClientSend!==null&&aedCashMyRate!==null) dollarProfitAed=aedCashClientSend-aedCashMyRate;
+if(platformFee!==null&&buyPrice!==null) platformFeeAed=platformFee*buyPrice;
+if(dollarProfitAed!==null&&platformFeeAed!==null) totalProfit=dollarProfitAed-platformFeeAed;
+else if(dollarProfitAed!==null) totalProfit=dollarProfitAed;
+}
+document.getElementById('dollarResults').style.display=hasDollarRequired?'block':'none';
 
 setResult('landingCost',landingCost,2,' INR/USDT');
 setResult('aedReceive',aedReceive,2,' AED');
@@ -133,6 +168,12 @@ setResult('profitUsdt',profitUsdt,2,' USDT');
 setResult('finalDifference',finalDifference,2,' USDT');
 setResult('extraInrPerUsdt',extraInrPerUsdt,2,' INR');
 setResult('individualProfit',individualProfit,2,' USDT');
+setResult('aedCashMyRate',aedCashMyRate,2,' AED');
+setResult('aedCashClientSend',aedCashClientSend,2,' AED');
+setResult('finalInrToSend',finalInrToSend,2,' INR');
+setResult('dollarProfitAed',dollarProfitAed,2,' AED');
+setResult('platformFeeAed',platformFeeAed,2,' AED');
+setResult('totalProfit',totalProfit,2,' AED');
 }
 
 document.querySelectorAll('input').forEach(input=>input.addEventListener('input',calculate));
