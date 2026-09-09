@@ -44,7 +44,7 @@ input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:fo
 
 <div class="field"><label for="buyPrice">ENTER MY USDT BUY PRICE</label><input type="number" id="buyPrice" step="0.0001" placeholder="Example: 3.67 AED"></div>
 <div class="field"><label for="hawalaRate">ENTER INDIAN / AED RATE FROM HAWALA</label><input type="number" id="hawalaRate" step="0.0001" placeholder="Example: 25.75 Rs"></div>
-<div class="field highlight"><label for="inrRequired">ENTER USDT REQUIRED TO CLIENT IN RUPEES</label><input type="number" id="inrRequired" value="100000" step="0.01" placeholder="Example: 100000"></div>
+<div class="field highlight"><label for="inrRequired">ENTER USDT REQUIRED TO CLIENT IN RUPEES</label><input type="number" id="inrRequired" value="" step="0.01" placeholder="Example: 100000"></div>
 <div class="field"><label for="dollarRequired">ENTER USDT REQUIRED TO CLIENT IN (DOLLARS)</label><input type="number" id="dollarRequired" step="0.01" placeholder="Example: 5000 USD"></div>
 <div class="field"><label for="clientUsdtRate">ENTER USDT RATE TO CLIENT</label><input type="number" id="clientUsdtRate" step="0.0001" placeholder="Example: 3.70 AED"></div>
 <div class="field"><label for="indiaSellPrice">USDT SELL PRICE IN INDIA</label><input type="number" id="indiaSellPrice" step="0.0001" placeholder="Example: 96.50 INR"></div>
@@ -77,13 +77,36 @@ input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:fo
 
 <div class="dollar-results" id="dollarResults">
 <div class="dollar-title"><center>Dollar Client Calculation</center></div>
-<div class="result dollar-row"><span class="result-label">AED CASH AT MY USDT RATE</span><span class="result-value" id="aedCashMyRate">—</span></div>
-<div class="result dollar-row"><span class="result-label">ACTUAL AED CASH HAS TO BE RECEIVED IN UAE</span><span class="result-value" id="aedCashClientSend">—</span></div>
-<div class="result dollar-row"><span class="result-label">FINAL INR AMOUNT CLIENT HAS TO SEND</span><span class="result-value" id="finalInrToSend">—</span></div>
-<div class="result dollar-final"><span class="result-label">TOTAL PROFIT IN AED</span><span class="result-value" id="totalProfit">—</span></div>
-</div>
+
+<div class="result dollar-row">
+  <span class="result-label">AED CASH AT MY USDT RATE</span>
+  <span class="result-value" id="aedCashMyRate">—</span>
 </div>
 
+<div class="result dollar-row">
+  <span class="result-label">ACTUAL AED CASH HAS TO BE RECEIVED IN UAE</span>
+  <span class="result-value" id="aedCashClientSend">—</span>
+</div>
+
+<div class="result dollar-final">
+  <span class="result-label">FINAL INR AMOUNT CLIENT HAS TO SEND</span>
+  <span class="result-value" id="finalInrToSend">—</span>
+</div>
+
+<div class="share-controls">
+  <label for="platformFeeOption">PLATFORM FEE CALCULATION OPTION</label>
+  <select id="platformFeeOption">
+    <option value="finalInr">FINAL INR AMOUNT CLIENT HAS TO SEND</option>
+    <option value="totalProfit">TOTAL PROFIT IN AED</option>
+  </select>
+</div>
+
+<div class="result dollar-profit-row" id="totalProfitRow">
+  <span class="result-label">TOTAL PROFIT IN AED</span>
+  <span class="result-value" id="totalProfit">—</span>
+</div>
+</div>
+</div>
 <div class="footer-note">
 Landing Cost = USDT Rate to Client × Indian/AED Hawala Rate<br>
 AED to Receive = INR Required ÷ Hawala Rate<br>
@@ -96,7 +119,7 @@ Profit in USDT If Direct Sell / Side Hustle Income = Total Wholesale Buy USDT �
 Dollar calculation is displayed only when Enter USDT Required to Client in (Dollars) is entered.<br>
 AED Cash at My USDT Rate = Dollar USDT Required × My USDT Buy Price<br>
 Actual AED Cash Has To Be Received In UAE = Dollar USDT Required × Client USDT Rate<br>
-Final INR Amount Client Has To Send = (Actual AED Cash Has To Be Received In UAE × Indian/AED Rate from Hawala) + (Platform Fee in USDT × My USDT Buy Price × Indian/AED Rate from Hawala)<br>
+Final INR Amount Client Has To Send = Actual AED Cash Has To Be Received In UAE × Indian/AED Rate from Hawala; when "FINAL INR AMOUNT CLIENT HAS TO SEND" is selected, add (Platform Fee in $ × My USDT Buy Price × Hawala Rate)<br>
 Total Profit in AED = Actual AED Cash Has To Be Received In UAE − AED Cash at My USDT Rate
 </div>
 </div>
@@ -148,15 +171,34 @@ if(hasDollarRequired){
  if(buyPrice!==null) aedCashMyRate=dollarRequired*buyPrice;
  if(clientUsdtRate!==null) aedCashClientSend=dollarRequired*clientUsdtRate;
 
- let platformFeeInr=0;
- if(platformFee!==null&&buyPrice!==null&&hawalaRate!==null)
-   platformFeeInr=platformFee*buyPrice*hawalaRate;
+ // Platform fee in AED = Platform Fee ($) × My USDT Buy Price.
+ let platformFeeAed=0;
+ if(platformFee!==null&&buyPrice!==null)
+   platformFeeAed=platformFee*buyPrice;
 
+ // Base final INR = Actual AED received × Hawala rate.
+ let baseFinalInr=null;
  if(aedCashClientSend!==null&&hawalaRate!==null)
-   finalInrToSend=(aedCashClientSend*hawalaRate)+platformFeeInr;
+   baseFinalInr=aedCashClientSend*hawalaRate;
 
+ // Base total profit in AED = Actual AED received − AED cash at my rate.
+ let baseTotalProfit=null;
  if(aedCashClientSend!==null&&aedCashMyRate!==null)
-   totalProfit=aedCashClientSend-aedCashMyRate;
+   baseTotalProfit=aedCashClientSend-aedCashMyRate;
+
+ const platformFeeOption=document.getElementById('platformFeeOption').value;
+
+ if(platformFeeOption==='finalInr'){
+   // Fee AED × Hawala rate is added to Final INR.
+   if(baseFinalInr!==null&&hawalaRate!==null)
+     finalInrToSend=baseFinalInr+(platformFeeAed*hawalaRate);
+   totalProfit=baseTotalProfit;
+ }else{
+   // Fee AED is deducted from Total Profit in AED.
+   finalInrToSend=baseFinalInr;
+   if(baseTotalProfit!==null)
+     totalProfit=baseTotalProfit-platformFeeAed;
+ }
  }
  document.getElementById('dollarResults').style.display=hasDollarRequired?'block':'none';
 
@@ -177,6 +219,7 @@ setResult('totalProfit',totalProfit,2,' AED');
 
 document.querySelectorAll('input').forEach(input=>input.addEventListener('input',calculate));
 document.getElementById('profitShareMode').addEventListener('change',calculate);
+document.getElementById('platformFeeOption').addEventListener('change',calculate);
 calculate();
 </script>
 </body>
