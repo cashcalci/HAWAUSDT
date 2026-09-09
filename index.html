@@ -80,9 +80,7 @@ input::placeholder{color:#a8b3c2;opacity:1;font-weight:500}input:focus,select:fo
 <div class="result dollar-row"><span class="result-label">AED CASH AT MY USDT RATE</span><span class="result-value" id="aedCashMyRate">—</span></div>
 <div class="result dollar-row"><span class="result-label">ACTUAL AED CASH HAS TO BE RECEIVED IN UAE</span><span class="result-value" id="aedCashClientSend">—</span></div>
 <div class="result dollar-row"><span class="result-label">FINAL INR AMOUNT CLIENT HAS TO SEND</span><span class="result-value" id="finalInrToSend">—</span></div>
-<div class="result dollar-profit-row"><span class="result-label">PROFIT IN AED</span><span class="result-value" id="dollarProfitAed">—</span></div>
-<div class="result dollar-row"><span class="result-label">PLATFORM FEE IN AED</span><span class="result-value" id="platformFeeAed">—</span></div>
-<div class="result dollar-final"><span class="result-label">TOTAL PROFIT</span><span class="result-value" id="totalProfit">—</span></div>
+<div class="result dollar-final"><span class="result-label">TOTAL PROFIT IN AED</span><span class="result-value" id="totalProfit">—</span></div>
 </div>
 </div>
 
@@ -98,10 +96,8 @@ Profit in USDT If Direct Sell / Side Hustle Income = Total Wholesale Buy USDT �
 Dollar calculation is displayed only when Enter USDT Required to Client in (Dollars) is entered.<br>
 AED Cash at My USDT Rate = Dollar USDT Required × My USDT Buy Price<br>
 Actual AED Cash Has To Be Received In UAE = Dollar USDT Required × Client USDT Rate<br>
-Final INR Amount Client Has To Send = Actual AED Cash Has To Be Received In UAE × Indian/AED Rate from Hawala<br>
-Profit in AED = Actual AED Cash Has To Be Received In UAE − AED Cash at My USDT Rate<br>
-Platform Fee in AED = Platform Fee in USDT × My USDT Buy Price<br>
-Total Profit = Profit in AED − Platform Fee in AED
+Final INR Amount Client Has To Send = (Actual AED Cash Has To Be Received In UAE × Indian/AED Rate from Hawala) + (Platform Fee in USDT × My USDT Buy Price × Indian/AED Rate from Hawala)<br>
+Total Profit in AED = Actual AED Cash Has To Be Received In UAE − AED Cash at My USDT Rate
 </div>
 </div>
 </div>
@@ -126,12 +122,12 @@ document.getElementById('usdtSendLabel').textContent=hasIndiaSellPrice?'TOTAL US
 document.getElementById('directProfitLabel').textContent=hasIndiaSellPrice?'SIDE HUSTLE INCOME':'PROFIT IN USDT IF DIRECT SELL';
 
 let landingCost=null,aedReceive=null,wholesaleBuy=null,usdtSend=null,clientReceivingUsdt=null,profitUsdt=null,finalDifference=null,extraInrPerUsdt=null,individualProfit=null;
-let aedCashMyRate=null,aedCashClientSend=null,finalInrToSend=null,dollarProfitAed=null,platformFeeAed=null,totalProfit=null;
+let aedCashMyRate=null,aedCashClientSend=null,finalInrToSend=null,totalProfit=null;
 
 if(clientUsdtRate!==null&&hawalaRate!==null) landingCost=clientUsdtRate*hawalaRate;
 if(inrRequired!==null&&hawalaRate!==null&&hawalaRate!==0) aedReceive=inrRequired/hawalaRate;
 
-if(aedReceive!==null&&buyPrice!==null&&buyPrice!==0){
+if(!hasDollarRequired&&aedReceive!==null&&buyPrice!==null&&buyPrice!==0){
 const grossWholesaleBuy=aedReceive/buyPrice;
 wholesaleBuy=grossWholesaleBuy-(platformFee!==null?platformFee:0);
 }
@@ -149,15 +145,20 @@ document.getElementById('sharePersonField').style.display=profitShareMode==='ind
 document.getElementById('individualProfitRow').style.display=profitShareMode==='individual'?'flex':'none';
 
 if(hasDollarRequired){
-if(buyPrice!==null) aedCashMyRate=dollarRequired*buyPrice;
-if(clientUsdtRate!==null) aedCashClientSend=dollarRequired*clientUsdtRate;
-if(aedCashClientSend!==null&&hawalaRate!==null) finalInrToSend=aedCashClientSend*hawalaRate;
-if(aedCashClientSend!==null&&aedCashMyRate!==null) dollarProfitAed=aedCashClientSend-aedCashMyRate;
-if(platformFee!==null&&buyPrice!==null) platformFeeAed=platformFee*buyPrice;
-if(dollarProfitAed!==null&&platformFeeAed!==null) totalProfit=dollarProfitAed-platformFeeAed;
-else if(dollarProfitAed!==null) totalProfit=dollarProfitAed;
-}
-document.getElementById('dollarResults').style.display=hasDollarRequired?'block':'none';
+ if(buyPrice!==null) aedCashMyRate=dollarRequired*buyPrice;
+ if(clientUsdtRate!==null) aedCashClientSend=dollarRequired*clientUsdtRate;
+
+ let platformFeeInr=0;
+ if(platformFee!==null&&buyPrice!==null&&hawalaRate!==null)
+   platformFeeInr=platformFee*buyPrice*hawalaRate;
+
+ if(aedCashClientSend!==null&&hawalaRate!==null)
+   finalInrToSend=(aedCashClientSend*hawalaRate)+platformFeeInr;
+
+ if(aedCashClientSend!==null&&aedCashMyRate!==null)
+   totalProfit=aedCashClientSend-aedCashMyRate;
+ }
+ document.getElementById('dollarResults').style.display=hasDollarRequired?'block':'none';
 
 setResult('landingCost',landingCost,2,' INR/USDT');
 setResult('aedReceive',aedReceive,2,' AED');
@@ -171,8 +172,6 @@ setResult('individualProfit',individualProfit,2,' USDT');
 setResult('aedCashMyRate',aedCashMyRate,2,' AED');
 setResult('aedCashClientSend',aedCashClientSend,2,' AED');
 setResult('finalInrToSend',finalInrToSend,2,' INR');
-setResult('dollarProfitAed',dollarProfitAed,2,' AED');
-setResult('platformFeeAed',platformFeeAed,2,' AED');
 setResult('totalProfit',totalProfit,2,' AED');
 }
 
